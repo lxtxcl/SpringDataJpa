@@ -1,6 +1,7 @@
-package com.example.spring_jpa.pojo;
+package com.example.spring_jpa.entity;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,21 +20,21 @@ import javax.persistence.*;
 @Builder
 public class JsonInfo extends BaseEntity{
 
-    /*@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;*/
+    private Long id;
 
     /*@Type(type = "json")
     @Column(name = "info")
-    private Map<String,String> info;*/
-
-
+    private Employee info;*/
 
     @Type(type = "json")
     @Column(name = "info")
-    private Employee info;
+    private JsonNode info;
 
-
+    @Type(type = "json")
+    @Column(name = "msg")
+    private JsonNode msg;
 }
 

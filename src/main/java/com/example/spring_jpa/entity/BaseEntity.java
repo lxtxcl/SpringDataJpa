@@ -1,4 +1,4 @@
-package com.example.spring_jpa.pojo;
+package com.example.spring_jpa.entity;
 
 import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;

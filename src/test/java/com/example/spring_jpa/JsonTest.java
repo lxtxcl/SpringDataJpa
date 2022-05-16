@@ -1,40 +1,54 @@
 package com.example.spring_jpa;
 
-import com.example.spring_jpa.pojo.Employee;
-import com.example.spring_jpa.pojo.JsonInfo;
-import com.example.spring_jpa.service.JsonInforService;
+import com.example.spring_jpa.common.JsonPathType;
+import com.example.spring_jpa.common.JsonQueryMatch;
+import com.example.spring_jpa.entity.Employee;
+import com.example.spring_jpa.entity.JacksonInfo;
+import com.example.spring_jpa.entity.JsonInfo;
+import com.example.spring_jpa.service.JsonInforServiceImpl;
+import com.example.spring_jpa.utils.DateUtils;
+import com.example.spring_jpa.utils.JsonUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @SpringBootTest
 public class JsonTest {
     @Autowired
-    JsonInforService jsonInfoService;
+    JsonInforServiceImpl jsonInfoService;
 
 
     @Test
-    public void simpleRead(){
-        System.out.println(jsonInfoService.findAll());
+    public void simpleRead() {
+        Iterable<JsonInfo> infos = jsonInfoService.findAll();
+        infos.forEach(System.out::println);
+        /*for (JsonInfo info : infos) {
+                    JacksonInfo jacksonInfo = JsonUtils.to(info.getInfo(), JacksonInfo.class);
+                    //System.out.println(jacksonInfo.getTime());
+        }*/
     }
 
     @Test
-    public void simpleAdd(){
+    public void simpleAdd() {
 
-        /*Map<String,String> map=new HashMap<>();
-        map.put("age","20");
-        map.put("time","2022-1-1");
-        Json_Info info=Json_Info.builder().info(map).build();
-        */
-        JsonInfo info= JsonInfo.builder().info(Employee.builder().name("三").time(new Date()).build()).build();
-        jsonInfoService.addJson(info);
+        JsonNode info =  JsonUtils
+                .toJson(Employee.builder().name("三").size(null).flag(false).time(new Date())
+                        .build());
+        JsonInfo jsonInfo = JsonInfo.builder()
+                .info(info).build();
+
+        jsonInfoService.addJson(jsonInfo);
     }
 
     @Test
-    public void simpleUpdate(){
-        JsonInfo json_info=jsonInfoService.findOne(4L).get();
+    public void simpleUpdate() {
+        JsonInfo json_info = jsonInfoService.findOne(4L).get();
         /*Map<String,String> map=json_info.getInfo();
         map.put("age","5");
         map.remove("time");
@@ -43,12 +57,141 @@ public class JsonTest {
     }
 
     @Test
-    public void simpleDelete(){
+    public void simpleDelete() {
+
         jsonInfoService.remove(4L);
     }
 
-    @Test
-    public void testIndex(){
+    /*@Test
+    public void testIndex() {
         System.out.println(jsonInfoService.findByEmployeeName(Employee.builder().name("\"三\"").build()));
+    }*/
+
+    @Test
+    public void GetByContainsKeys(){
+        List<String> list=new ArrayList<>();
+        list.add("size");
+        list.add("age");
+        Iterable<JsonInfo> infos=jsonInfoService.findByJsonKeysExists(JsonPathType.ALL,list);
+        infos.forEach(System.out::println);
+
+    }
+
+    @Test
+    public void getByContainsKeyValue(){
+        Map<String,Object> map=new HashMap<>();
+        map.put("a","1");
+        map.put("b","4");
+
+        Iterable<JsonInfo> infos=jsonInfoService.findByJsonKeyValueExists("time","2022-05-11 10:54:50");
+        //Iterable<JsonInfo> infos=jsonInfoService.findByJsonKeyValueExists("size",map);
+        infos.forEach(System.out::println);
+    }
+    @Test
+    public void getByContainsValue(){
+        //int[] value=new int[]{1};
+        Map<String,Object> value=new HashMap<>();
+        value.put("size",null);
+        Iterable<JsonInfo> infos=jsonInfoService.findByJsonVelueExists(value);
+        infos.forEach(System.out::println);
+    }
+    @Test
+    public void getByJsonPathIndex(){
+        //String s1="2.*";
+        String s2="age";
+       List<String> list=new ArrayList<>();
+        //list.add(s1);
+       list.add(s2);
+        Iterable<JsonInfo> infos=jsonInfoService.findByJsonPathIndexExists(list);
+        infos.forEach(System.out::println);
+    }
+    @Test
+    public void getInfoByJsonPath(){
+        String s1="2.*";
+        //String s2="pid";
+        List<String> list=new ArrayList<>();
+        list.add(s1);
+        //list.add(s2);
+        Iterable<String> infos=jsonInfoService.findInfoByJsonPath(list);
+        infos.forEach(p->{
+            //System.out.println(JsonUtils.to(p,HashMap.class));
+            System.out.println(p);
+        });
+    }
+    @Test
+    public void getByJsonValueBetween(){
+        DateTimeFormatter df = DateTimeFormatter.ofPattern(DateUtils.YYYY_MM_DD_HH_MM_SS);
+        //Iterable<JsonInfo> infos=jsonInfoService.findbyJsonValueBetween("age","1","20");
+        String minTime="2022-04-10 14:49:14";
+        LocalDateTime min=LocalDateTime.parse(minTime,df);
+        String minT=df.format(min);
+        String maxTime="2022-06-11 17:43:41";
+        LocalDateTime max=LocalDateTime.parse(maxTime,df);
+        String maxT=df.format(max);
+        Iterable<JsonInfo> infos=jsonInfoService.findByJsonValueBetween("time",minT,maxT);
+        infos.forEach(System.out::println);
+    }
+
+    @Test
+    public void getByJsonValueBeforeAndAfter(){
+        DateTimeFormatter df = DateTimeFormatter.ofPattern(DateUtils.YYYY_MM_DD_HH_MM_SS);
+
+        String time="2022-05-11 10:54:50";
+        LocalDateTime min=LocalDateTime.parse(time,df);
+        String t=df.format(min);
+        Iterable<JsonInfo> after=jsonInfoService.findByJsonValueAfter("time",t);
+        System.out.println("after:");
+        after.forEach(System.out::println);
+        Iterable<JsonInfo> before=jsonInfoService.findByJsonValueBefore("time",t);
+        System.out.println("before:");
+        before.forEach(System.out::println);
+    }
+
+
+
+    @Test
+    public void getByJsonValueLike(){
+        Iterable<JsonInfo> infos=jsonInfoService.findByJsonValueLike("name","%","三", "%");
+        infos.forEach(System.out::println);
+    }
+
+
+
+    @Test
+    public void allJsonUpdate(){
+        Map<String,Object> map=new HashMap<>();
+        Map<String,Object> map2=new HashMap<>();
+        map2.put("age","14");
+        //map.put("pides",JacksonInfo.builder().name("2").build());
+        map.put("pides",map2);
+        //jsonInfoService.allJsonSet(map);
+        //jsonInfoService.allJsonInsert(map);
+        jsonInfoService.allJsonReplace(map);
+    }
+
+    @Test
+    public void allJsonRemoveByPath(){
+        List<String> list=new ArrayList<>();
+        list.add("pides");
+        jsonInfoService.allJsonRemoveByPath(list);
+    }
+
+    @Test
+    public void findByJsonVelueAnyExists(){
+        List<Object> list=new ArrayList<>();
+        list.add(1);
+        list.add(2);
+
+        int[] ints=new int[]{1,2};
+
+        Map<String,Object> map=new HashMap<>();
+        map.put("name","三");
+        map.put("size",5);
+        Iterable<JsonInfo> infos = jsonInfoService.findByJsonArrayVelueAnyExists(map);
+        infos.forEach(p->{
+            //System.out.println(JsonUtils.to(p,HashMap.class));
+            System.out.println(StringEscapeUtils.unescapeJson(JsonUtils.format(p.getInfo())));
+            //System.out.println(JsonUtils.format(p.getInfo()));
+        });
     }
 }
