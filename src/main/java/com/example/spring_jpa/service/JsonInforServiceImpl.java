@@ -1,13 +1,8 @@
 package com.example.spring_jpa.service;
 
-import com.example.spring_jpa.common.JsonPathType;
-import com.example.spring_jpa.common.JsonQueryMatch;
-import com.example.spring_jpa.entity.Employee;
 import com.example.spring_jpa.entity.JsonInfo;
 import com.example.spring_jpa.dao.JsonInfoRepository;
-import com.example.spring_jpa.utils.JsonUtil;
 import com.example.spring_jpa.utils.JsonUtils;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +17,7 @@ public class JsonInforServiceImpl implements JsonInfoService {
     JsonInfoRepository jsonInfoRepository;
 
     @Override
-    public Iterable<JsonInfo> findAll() {
+    public List<JsonInfo> findAll() {
         return jsonInfoRepository.findAll();
     }
 
@@ -30,6 +25,12 @@ public class JsonInforServiceImpl implements JsonInfoService {
     public void addJson(JsonInfo info) {
         jsonInfoRepository.save(info);
 
+
+    }
+
+    @Override
+    public void addAllJson(List<JsonInfo> list) {
+        jsonInfoRepository.saveAll(list);
     }
 
     @Override
@@ -42,57 +43,72 @@ public class JsonInforServiceImpl implements JsonInfoService {
         jsonInfoRepository.deleteById(id);
     }
 
-    @Override
-    public Iterable<JsonInfo> findByEmployeeName(Employee employee) {
-        return jsonInfoRepository.findByEmployeeName(employee.getName());
-
-    }
-
 
     @Override
-    public Iterable<JsonInfo> findByJsonKeysExists(JsonPathType type, List<String> path) {
+    public List<JsonInfo> findByAllJsonKeysExists(List<String> path) {
         List<String> truePath = path.stream().map(JsonUtils::stringToPath).collect(Collectors.toList());
-        return jsonInfoRepository.findByJsonKeysExists(truePath, type.getVal());
+        return jsonInfoRepository.findByAllJsonKeysExists(truePath);
     }
 
     @Override
-    public Iterable<JsonInfo> findByJsonKeyValueExists( String path,Object value) {
-        String val = JsonUtils.format(JsonUtils.toJson(value));
-        return jsonInfoRepository.findByJsonKeyVelueExists(JsonUtils.stringToPath(path), val);
+    public List<JsonInfo> findByAnyJsonKeysExists(List<String> path) {
+        List<String> truePath = path.stream().map(JsonUtils::stringToPath).collect(Collectors.toList());
+        return jsonInfoRepository.findByAnyJsonKeysExists(truePath);
     }
 
     @Override
-    public Iterable<JsonInfo> findByJsonPathIndexExists(List<String> path) {
+    public List<JsonInfo> findByJsonKeyValueExists(String path, Object value) {
+
+        // String val = JsonUtils.format(JsonUtils.toJson(value));
+        //return jsonInfoRepository.findByJsonKeyVelueExists(JsonUtils.stringToPath(path), val);
+        return jsonInfoRepository.findByJsonKeyVelueExists(path, value);
+    }
+
+    @Override
+    public List<JsonInfo> findByJsonPathIndexExists(List<String> path) {
 
         List<String> truePath = path.stream().map(JsonUtils::stringToPath).collect(Collectors.toList());
         return jsonInfoRepository.findByJsonPathIndexExists(truePath);
     }
 
     @Override
-    public Iterable<String> findInfoByJsonPath(List<String> path) {
+    public List<String> findInfoByJsonPath(List<String> path) {
         List<String> truePath = path.stream().map(JsonUtils::stringToPath).collect(Collectors.toList());
         return jsonInfoRepository.findInfoByJsonPath(truePath);
     }
 
     @Override
-    public Iterable<JsonInfo> findByJsonValueBetween(String path, String min, String max) {
+    public List<JsonInfo> findByJsonValueBetween(String path, String min, String max) {
         //return jsonInfoRepository.findbyJsonValueBetween("$."+path,JsonUtils.format(JsonUtils.toJson(min)),JsonUtils.format(JsonUtils.toJson(max)));
-        return jsonInfoRepository.findByJsonValueBetween(JsonUtils.stringToPath(path), min, max);
+        if (NumberUtils.isCreatable(min) && NumberUtils.isCreatable(max)) {
+            return jsonInfoRepository.findByJsonValueBetween(path, Integer.parseInt(min), Integer.parseInt(max));
+        } else {
+            return jsonInfoRepository.findByJsonValueBetween(path, min, max);
+        }
     }
 
     @Override
-    public Iterable<JsonInfo> findByJsonValueAfter(String path, String min) {
-        return jsonInfoRepository.findByJsonValueAfter(JsonUtils.stringToPath(path), min);
+    public List<JsonInfo> findByJsonValueAfter(String path, String after) {
+        if (NumberUtils.isCreatable(after)) {
+            return jsonInfoRepository.findByJsonValueAfter(path, Integer.parseInt(after));
+        } else {
+            return jsonInfoRepository.findByJsonValueAfter(path, after);
+        }
+
     }
 
     @Override
-    public Iterable<JsonInfo> findByJsonValueBefore(String path, String max) {
-        return jsonInfoRepository.findByJsonValueBefore(JsonUtils.stringToPath(path), max);
+    public List<JsonInfo> findByJsonValueBefore(String path, String before) {
+        if (NumberUtils.isCreatable(before)) {
+            return jsonInfoRepository.findByJsonValueBefore(path, Integer.parseInt(before));
+        } else {
+            return jsonInfoRepository.findByJsonValueBefore(path, before);
+        }
     }
 
     @Override
-    public Iterable<JsonInfo> findByJsonValueLike(String path, String left, String mid, String right) {
-        return jsonInfoRepository.findByJsonValueLike(JsonUtils.stringToPath(path), left, mid, right);
+    public List<JsonInfo> findByJsonValueLike(String path, String prefix, String infill, String suffix) {
+        return jsonInfoRepository.findByJsonValueLike(path, prefix, infill, suffix);
     }
 
     @Transactional
@@ -112,9 +128,9 @@ public class JsonInforServiceImpl implements JsonInfoService {
         List<Object> list = new ArrayList<>();
         map.entrySet().forEach(entry -> {
             list.add(JsonUtils.stringToPath(entry.getKey()));
-            if(entry.getValue() instanceof  String){
+            if (entry.getValue() instanceof String) {
                 list.add(entry.getValue());
-            }else {
+            } else {
                 //list.add(JsonUtils.format(JsonUtils.toJson(entry.getValue())));
                 list.add(JsonUtils.toJson(entry.getValue()).toPrettyString());
                 System.out.println(JsonUtils.toJson(entry.getValue()).toPrettyString());
@@ -157,25 +173,15 @@ public class JsonInforServiceImpl implements JsonInfoService {
     }
 
     @Override
-    public Iterable<JsonInfo> findByJsonVelueExists(Object value) {
+    public List<JsonInfo> findByJsonVelueExists(Object value) {
         return jsonInfoRepository.findByJsonVelueExists(JsonUtils.format(JsonUtils.toJson(value)));
     }
+
+
+
     @Override
-    public Iterable<JsonInfo> findByJsonArrayVelueAnyExists(Object value){
+    public List<JsonInfo> findByArrayValues( List<Object> value) {
 
-        if(value instanceof List){
-            return jsonInfoRepository.findByJsonArrayVelueAnyExists((List<Object>) value);
-        }else if(value instanceof Map){
-            List<Object> list=new ArrayList<>();
-            ((Map<Object, Object>) value).entrySet().forEach(e->{
-                list.add(e.getKey());
-                list.add(e.getValue());
-            });
-
-            return jsonInfoRepository.findByJsonObjectVelueAnyExists(list);
-        }else {
-            return null;
-        }
-
+        return jsonInfoRepository.findByArrayObjectValue( value);
     }
 }

@@ -1,10 +1,6 @@
 package com.example.spring_jpa.service;
 
-import com.example.spring_jpa.common.JsonPathType;
-import com.example.spring_jpa.common.JsonQueryMatch;
-import com.example.spring_jpa.entity.Employee;
 import com.example.spring_jpa.entity.JsonInfo;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +9,9 @@ import java.util.Optional;
 
 public interface JsonInfoService {
 
-    Iterable<JsonInfo> findAll();
+    List<JsonInfo> findAll();
+
+    void addAllJson(List<JsonInfo> list);
 
     void addJson(JsonInfo info);
 
@@ -21,38 +19,41 @@ public interface JsonInfoService {
 
     void remove(Long id);
 
-    Iterable<JsonInfo> findByEmployeeName(Employee employee);
+
+    //查询存在所有path路径的json
+    List<JsonInfo> findByAllJsonKeysExists(List<String> path);
 
     //查询存在path路径的json
-    Iterable<JsonInfo> findByJsonKeysExists(JsonPathType type, List<String> path);
+    List<JsonInfo> findByAnyJsonKeysExists(List<String> path);
 
     //查询存在path路径下对应值的json
-    Iterable<JsonInfo> findByJsonKeyValueExists( String path,Object value);
+    List<JsonInfo> findByJsonKeyValueExists(String path, Object value);
 
     //查询存在path路径对应下标的数据
-    Iterable<JsonInfo> findByJsonPathIndexExists(List<String> path);
+    List<JsonInfo> findByJsonPathIndexExists(List<String> path);
 
-    Iterable<String> findInfoByJsonPath(List<String> path);
-
-
-    Iterable<JsonInfo> findByJsonValueBetween(String path,String min,String max);
-
-    Iterable<JsonInfo> findByJsonValueAfter(String path,String min);
-
-    Iterable<JsonInfo> findByJsonValueBefore(String path,String max);
+    List<String> findInfoByJsonPath(List<String> path);
 
 
-    Iterable<JsonInfo> findByJsonValueLike(String path, String left, String mid,String right);
+    List<JsonInfo> findByJsonValueBetween(String path, String min, String max);
 
-    void allJsonSet(Map<String,Object> map);
+    List<JsonInfo> findByJsonValueAfter(String path, String min);
 
-    void allJsonInsert(Map<String,Object> map);
+    List<JsonInfo> findByJsonValueBefore(String path, String max);
 
-    void allJsonReplace(Map<String,Object> map);
+
+    List<JsonInfo> findByJsonValueLike(String path, String prefix, String infill, String suffix);
+
+    void allJsonSet(Map<String, Object> map);
+
+    void allJsonInsert(Map<String, Object> map);
+
+    void allJsonReplace(Map<String, Object> map);
 
     void allJsonRemoveByPath(List<String> lists);
 
-    Iterable<JsonInfo> findByJsonVelueExists(Object value);
+    List<JsonInfo> findByJsonVelueExists(Object value);
 
-    Iterable<JsonInfo> findByJsonArrayVelueAnyExists(Object value);
+
+    List<JsonInfo> findByArrayValues(List<Object> value);
 }

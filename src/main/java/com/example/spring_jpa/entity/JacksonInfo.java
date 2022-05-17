@@ -24,14 +24,14 @@ import java.time.LocalDateTime;
 public class JacksonInfo {
 
     @JsonProperty(value = "name")
-    String name;
+    private String name;
 
 
     @JsonIgnore
-    String ignore;
+    private String ignore;
 
-    @JsonFormat(pattern = DateUtils.YYYY_MM_DD_HH_MM_SS,timezone = "Asia/Shanghai")
+    @JsonFormat(pattern = DateUtils.YYYY_MM_DD_HH_MM_SS, timezone = "Asia/Shanghai")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    LocalDateTime time;
+    private LocalDateTime time;
 }
