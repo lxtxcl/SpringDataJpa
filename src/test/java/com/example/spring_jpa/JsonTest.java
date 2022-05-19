@@ -2,11 +2,10 @@ package com.example.spring_jpa;
 
 import com.example.spring_jpa.dto.Employee;
 import com.example.spring_jpa.entity.JsonInfo;
-import com.example.spring_jpa.service.JsonInforServiceImpl;
+import com.example.spring_jpa.service.JsonInfoServiceImpl;
 import com.example.spring_jpa.utils.DateUtils;
 import com.example.spring_jpa.utils.JsonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +17,7 @@ import java.util.*;
 @SpringBootTest
 public class JsonTest {
     @Autowired
-    JsonInforServiceImpl jsonInfoService;
+    JsonInfoServiceImpl jsonInfoService;
 
 
     @Test
@@ -167,12 +166,12 @@ public class JsonTest {
     public void allJsonUpdate() {
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> map2 = new HashMap<>();
-        map2.put("age", "14");
+        map2.put("x", "15");
         //map.put("pides",JacksonInfo.builder().name("2").build());
-        map.put("pides", map2);
+        map.put("z", map2);
         //jsonInfoService.allJsonSet(map);
         //jsonInfoService.allJsonInsert(map);
-        jsonInfoService.allJsonReplace(map);
+        jsonInfoService.allJsonReplaceString(map);
     }
 
     @Test

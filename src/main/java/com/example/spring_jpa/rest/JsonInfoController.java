@@ -6,20 +6,19 @@ import com.example.spring_jpa.service.JsonInfoService;
 import com.example.spring_jpa.utils.JsonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 @RestController
+@RequestMapping("json-info")
 public class JsonInfoController {
 
     @Autowired
     JsonInfoService jsonInfoService;
 
     /*数据库中初始化10000条数据*/
-    @RequestMapping("init")
+    @PostMapping("init")
     public void initDatabase() {
         List<JsonInfo> list = new ArrayList<>();
 
@@ -52,7 +51,7 @@ public class JsonInfoController {
     }
 
     /*读取所有数据*/
-    @RequestMapping("read-all")
+    @GetMapping
     public JsonNode readAll() {
         List<JsonInfo> infos = jsonInfoService.findAll();
 
@@ -60,21 +59,21 @@ public class JsonInfoController {
     }
 
     /*查询所有key都存在的数据*/
-    @RequestMapping("get-contains-all-keys")
+    @GetMapping("contains-all")
     public JsonNode getContainsAllKeys(@RequestParam List<String> keys) {
         List<JsonInfo> infos = jsonInfoService.findByAllJsonKeysExists(keys);
         return JsonUtils.object().set("result", JsonUtils.toJson(infos));
     }
 
     /*查询key存在的数据*/
-    @RequestMapping("get-contains-any-keys")
+    @GetMapping("contains-any")
     public JsonNode getContainsAnyKeys(@RequestParam List<String> keys) {
         List<JsonInfo> infos = jsonInfoService.findByAnyJsonKeysExists(keys);
         return JsonUtils.object().set("result", JsonUtils.toJson(infos));
     }
 
     /*查询存在相同key-value的数据*/
-    @RequestMapping("get-contains-key-value")
+    @GetMapping("contains-key-value")
     public JsonNode GetByContainsKeys(@RequestParam String key, @RequestParam Object value) {
 
         List<JsonInfo> infos = jsonInfoService.findByJsonKeyValueExists(key, value);
@@ -82,7 +81,7 @@ public class JsonInfoController {
     }
 
     /*查询所有key的value*/
-    @RequestMapping("get-value-by-key")
+    @GetMapping("values")
     public JsonNode GetValueByKeys(@RequestParam List<String> keys) {
 
         List<String> infos = jsonInfoService.findInfoByJsonPath(keys);
@@ -90,14 +89,14 @@ public class JsonInfoController {
     }
 
     /*查询值在max,min之间的数据*/
-    @RequestMapping("get-value-between")
+    @GetMapping("value-between")
     public JsonNode GetValueBetween(@RequestParam String min, @RequestParam String max, @RequestParam String path) {
         List<JsonInfo> infos = jsonInfoService.findByJsonValueBetween(path, min, max);
         return JsonUtils.object().set("result", JsonUtils.toJson(infos));
     }
 
     /*查询值>after 以及值小于before的数据*/
-    @RequestMapping("get-value-before-and-After")
+    @GetMapping("value-before-After")
     public JsonNode GetValueBeforeAndAfter(@RequestParam String before, @RequestParam String after, @RequestParam String path) {
         List<JsonInfo> afters = jsonInfoService.findByJsonValueAfter(path, after);
         List<JsonInfo> befores = jsonInfoService.findByJsonValueBefore(path, before);
@@ -108,7 +107,7 @@ public class JsonInfoController {
     }
 
     /*模糊查询*/
-    @RequestMapping("get-value-like")
+    @GetMapping("value-like")
     public JsonNode getValueLike(@RequestParam String path, @RequestParam String prefix, @RequestParam String infill, @RequestParam String suffix) {
         if (prefix == null) {
             prefix = "";
@@ -121,7 +120,7 @@ public class JsonInfoController {
     }
 
     /*查询数组中存在对应value的数据*/
-    @RequestMapping("get-by-array-values")
+    @GetMapping("contains-values")
     public JsonNode getByArrayValues(@RequestParam List<Object> values) {
         List<JsonInfo> infos = jsonInfoService.findByArrayValues(values);
         return JsonUtils.object().set("result", JsonUtils.toJson(infos));

@@ -44,11 +44,13 @@ public interface JsonInfoService {
 
     List<JsonInfo> findByJsonValueLike(String path, String prefix, String infill, String suffix);
 
-    void allJsonSet(Map<String, Object> map);
+    void allJsonSetString(Map<String, Object> map);
 
-    void allJsonInsert(Map<String, Object> map);
+    void allJsonInsertString(Map<String, Object> map);
 
-    void allJsonReplace(Map<String, Object> map);
+    void allJsonReplaceString(Map<String, Object> map);
+
+    void allJsonReplaceMap(String path,Map<String, Object> map);
 
     void allJsonRemoveByPath(List<String> lists);
 

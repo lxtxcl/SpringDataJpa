@@ -64,18 +64,22 @@ public interface JsonInfoRepository extends JpaRepository<JsonInfo, Long> {
     //修改或新增json
     @Modifying
     @Query(value = "UPDATE test_json SET info = JSON_SET(info, :lists) ;", nativeQuery = true)
-    void allJsonSet(List<Object> lists);
+    void allJsonSetString(List<Object> lists);
 
     //新增json
     @Modifying
     @Query(value = "UPDATE test_json SET info = JSON_INSERT(info, :lists) ;", nativeQuery = true)
-    void allJsonInsert(List<Object> lists);
+    void allJsonInsertString(List<Object> lists);
 
     //修改json
     @Modifying
     @Query(value = "UPDATE test_json SET info = JSON_REPLACE(info, :lists) ;", nativeQuery = true)
-    void allJsonReplace(List<Object> lists);
+    void allJsonReplaceString(List<Object> lists);
 
+    //修改json
+    @Modifying
+    @Query(value = "UPDATE test_json SET info = JSON_REPLACE(info, :path,JSON_OBJECT(:values)) ;", nativeQuery = true)
+    void allJsonReplaceMap(String path,List<Object> values);
     //删除路径下的json
     @Modifying
     @Query(value = "UPDATE test_json SET info = JSON_REMOVE(info, :paths) ;", nativeQuery = true)

@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class JsonInforServiceImpl implements JsonInfoService {
+public class JsonInfoServiceImpl implements JsonInfoService {
     @Autowired
     JsonInfoRepository jsonInfoRepository;
 
@@ -113,58 +113,47 @@ public class JsonInforServiceImpl implements JsonInfoService {
 
     @Transactional
     @Override
-    public void allJsonSet(Map<String, Object> map) {
+    public void allJsonSetString(Map<String, Object> map) {
         List<Object> list = new ArrayList<>();
         map.entrySet().forEach(entry -> {
             list.add(JsonUtils.stringToPath(entry.getKey()));
             list.add(entry.getValue());
         });
-        jsonInfoRepository.allJsonSet(list);
+        jsonInfoRepository.allJsonSetString(list);
     }
 
     @Transactional
     @Override
-    public void allJsonInsert(Map<String, Object> map) {
+    public void allJsonInsertString(Map<String, Object> map) {
         List<Object> list = new ArrayList<>();
         map.entrySet().forEach(entry -> {
             list.add(JsonUtils.stringToPath(entry.getKey()));
-            if (entry.getValue() instanceof String) {
-                list.add(entry.getValue());
-            } else {
-                //list.add(JsonUtils.format(JsonUtils.toJson(entry.getValue())));
-                list.add(JsonUtils.toJson(entry.getValue()).toPrettyString());
-                System.out.println(JsonUtils.toJson(entry.getValue()).toPrettyString());
-                //list.add(JsonUtil.toJson(entry.getValue()).toJSONString());
-            }
-
+            list.add(entry.getValue());
         });
-        jsonInfoRepository.allJsonInsert(list);
+        jsonInfoRepository.allJsonInsertString(list);
     }
 
     @Transactional
     @Override
-    public void allJsonReplace(Map<String, Object> map) {
+    public void allJsonReplaceString(Map<String, Object> map) {
         List<Object> list = new ArrayList<>();
         map.entrySet().forEach(entry -> {
             list.add(JsonUtils.stringToPath(entry.getKey()));
-            list.add(JsonUtils.toJson(entry.getValue()).toString());
+            list.add(entry.getValue());
         });
-        /*List<Object> list = new ArrayList<>();
-        map.entrySet().forEach(entry -> {
-            list.add(JsonUtils.stringToPath(entry.getKey()));
-            if(entry.getValue() instanceof  String){
-                list.add(entry.getValue());
-            }else {
-                //list.add(JsonUtils.format(JsonUtils.toJson(entry.getValue())));
-                //list.add(JsonUtils.toJson(entry.getValue()).toString());
-                //System.out.println(JsonUtils.toJson(entry.getValue()).toPrettyString());
-
-            }
-
-        });*/
-        jsonInfoRepository.allJsonReplace(list);
+        jsonInfoRepository.allJsonReplaceString(list);
     }
 
+    @Transactional
+    @Override
+    public void allJsonReplaceMap(String path,Map<String, Object> map) {
+        List<Object> list = new ArrayList<>();
+        map.entrySet().forEach(entry -> {
+            list.add(JsonUtils.stringToPath(entry.getKey()));
+            list.add(entry.getValue());
+        });
+        jsonInfoRepository.allJsonReplaceString(list);
+    }
     @Transactional
     @Override
     public void allJsonRemoveByPath(List<String> lists) {
